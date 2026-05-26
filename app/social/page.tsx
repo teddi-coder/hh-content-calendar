@@ -40,10 +40,13 @@ const ADD_FIELDS = [
 
 export default async function SocialPage() {
   const supabase = createServerSupabase()
-  const { data: rows } = await supabase
+  const { data: rows, error } = await supabase
     .from('cal_social_posts')
     .select('*')
     .order('sort_order', { ascending: true })
+
+  if (error) console.error('[social] supabase error:', error)
+  console.log('[social] row count:', rows?.length ?? 'null')
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F1F1F1' }}>
