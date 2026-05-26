@@ -20,6 +20,7 @@ import { SortableRow, DragHandleIcon } from './DragHandle'
 import InlineCell from './InlineCell'
 import StatusChip from './StatusChip'
 import AddRowModal from './AddRowModal'
+import DateFilterBar, { DateFilters, DEFAULT_FILTERS, applyDateFilters } from './DateFilterBar'
 
 export interface ColDef {
   key: string
@@ -60,7 +61,7 @@ export default function CalTable({
   const [rows, setRows] = useState<Record<string, unknown>[]>(initialRows)
   const [showAddModal, setShowAddModal] = useState(false)
   const [search, setSearch] = useState('')
-  const [monthFilter, setMonthFilter] = useState('')
+  const [dateFilters, setDateFilters] = useState<DateFilters>(DEFAULT_FILTERS)
   const [sortCol, setSortCol] = useState<string | null>(null)
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
@@ -70,30 +71,19 @@ export default function CalTable({
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
-  // Get unique months from date column
-  const months = showMonthFilter
-    ? Array.from(
-        new Set(
-          rows
-            .map((r) => {
-              const d = r[dateKey] as string
-              return d ? d.slice(0, 7) : null
-            })
-            .filter(Boolean) as string[]
-        )
-      ).sort()
-    : []
+  // Apply date filters first, then search
+  const hasAnyDateFilter = Object.values(dateFilters).some(Boolean)
+  const dateFiltered = showMonthFilter
+    ? applyDateFilters(rows, dateKey, dateFilters)
+    : rows
 
-  // Filter
-  let filtered = rows.filter((row) => {
+  let filtered = dateFiltered.filter((row) => {
     const q = search.toLowerCase()
     const matchSearch =
       !q ||
       String(row.asset_name ?? row.campaign_name ?? '').toLowerCase().includes(q) ||
       String(row.responsible ?? '').toLowerCase().includes(q)
-    const matchMonth =
-      !monthFilter || String(row[dateKey] ?? '').startsWith(monthFilter)
-    return matchSearch && matchMonth
+    return matchSearch
   })
 
   // Sort
@@ -273,7 +263,7 @@ export default function CalTable({
   return (
     <div>
       {/* Toolbar */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 10, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap' }}>
         <input
           type="search"
           placeholder="Search…"
@@ -290,27 +280,13 @@ export default function CalTable({
             width: 200,
           }}
         />
-        {showMonthFilter && months.length > 0 && (
-          <select
-            value={monthFilter}
-            onChange={(e) => setMonthFilter(e.target.value)}
-            style={{
-              padding: '8px 12px',
-              borderRadius: 6,
-              border: '1px solid #d4d4d4',
-              background: '#f8f8f8',
-              fontFamily: 'Poppins, sans-serif',
-              fontSize: '0.875rem',
-              color: '#1B1918',
-            }}
-          >
-            <option value="">All months</option>
-            {months.map((m) => (
-              <option key={m} value={m}>
-                {new Date(m + '-01').toLocaleDateString('en-AU', { month: 'long', year: 'numeric' })}
-              </option>
-            ))}
-          </select>
+        {showMonthFilter && (
+          <DateFilterBar
+            rows={rows}
+            dateKey={dateKey}
+            filters={dateFilters}
+            onChange={setDateFilters}
+          />
         )}
         <div style={{ flex: 1 }} />
         <button
@@ -346,9 +322,9 @@ export default function CalTable({
               No entries yet
             </p>
             <p style={{ color: '#888', fontSize: '0.875rem', marginBottom: 20 }}>
-              {search || monthFilter ? 'No rows match your filters.' : 'Get started by adding your first row.'}
+              {search || hasAnyDateFilter ? 'No rows match your filters.' : 'Get started by adding your first row.'}
             </p>
-            {!search && !monthFilter && (
+            {!search && !hasAnyDateFilter && (
               <button
                 onClick={() => setShowAddModal(true)}
                 style={{
@@ -446,7 +422,7 @@ export default function CalTable({
 
       <p style={{ marginTop: 8, fontSize: '0.78rem', color: '#999', fontFamily: 'Poppins, sans-serif' }}>
         {filtered.length} row{filtered.length !== 1 ? 's' : ''}
-        {(search || monthFilter) && ` (filtered from ${rows.length})`}
+        {(search || hasAnyDateFilter) && ` (filtered from ${rows.length})`}
       </p>
 
       {showAddModal && (
