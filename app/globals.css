@@ -2,26 +2,114 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap');
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --hh-grey-white: #F1F1F1;
+  --hh-warm-black: #1B1918;
+  --hh-blue: #7DD3FC;
+  --hh-green: #65E499;
+  --hh-yellow: #F4F7A6;
+  --hh-pink: #FFA8D1;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
+html,
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--hh-grey-white);
+  color: var(--hh-warm-black);
+  font-family: 'Poppins', Inter, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Fraunces', Georgia, serif;
+}
+
+/* Table styles */
+.cal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.cal-table thead tr {
+  background-color: var(--hh-warm-black);
+  color: var(--hh-grey-white);
+}
+
+.cal-table thead th {
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
+  font-family: 'Poppins', Inter, Arial, sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.cal-table thead th.sortable {
+  cursor: pointer;
+}
+
+.cal-table thead th.sortable:hover {
+  background-color: #2d2a28;
+}
+
+.cal-table tbody tr {
+  border-bottom: 1px solid #d4d4d4;
+  transition: background-color 0.1s ease;
+}
+
+.cal-table tbody tr:hover {
+  background-color: #e8e8e8;
+}
+
+.cal-table tbody td {
+  padding: 8px 12px;
+  vertical-align: middle;
+  max-width: 240px;
+}
+
+/* Inline editing */
+.cal-cell-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--hh-blue);
+  outline: none;
+  font-family: 'Poppins', Inter, Arial, sans-serif;
+  font-size: 0.85rem;
+  color: var(--hh-warm-black);
+  padding: 2px 0;
+}
+
+.cal-cell-input:focus {
+  background-color: rgba(125, 211, 252, 0.1);
+}
+
+/* Drag handle */
+.drag-handle {
+  cursor: grab;
+  color: #aaa;
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Scrollable table wrapper */
+.table-scroll-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #d4d4d4;
 }

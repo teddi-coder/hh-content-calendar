@@ -9,8 +9,16 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        'hh-grey-white': '#F1F1F1',
+        'hh-warm-black': '#1B1918',
+        'hh-blue': '#7DD3FC',
+        'hh-green': '#65E499',
+        'hh-yellow': '#F4F7A6',
+        'hh-pink': '#FFA8D1',
+      },
+      fontFamily: {
+        display: ['Fraunces', 'Georgia', 'serif'],
+        body: ['Poppins', 'Inter', 'Arial', 'sans-serif'],
       },
     },
   },
